@@ -1,20 +1,27 @@
-#frozen_string_literal: true
+# frozen_string_literal: true
 
+require 'timecop'
 require_relative 'test_helper'
 require './lib/transaction'
 
 # transaction test
 class TransactionTest < Minitest::Test
   def setup
+    Timecop.freeze
+
     @t = Transaction.new({
-      :id => 6,
-      :invoice_id => 8,
-      :credit_card_number => '4242424242424242',
-      :credit_card_expiration_date => '0220',
-      :result => 'success',
-      :created_at => Time.now.to_s,
-      :updated_at => Time.now.to_s,
+      id:  6,
+      invoice_id:  8,
+      credit_card_number:  '4242424242424242',
+      credit_card_expiration_date:  '0220',
+      result:  'success',
+      created_at:  Time.now.to_s,
+      updated_at:  Time.now.to_s,
     }, 'parent' )
+  end
+
+  def teardown
+    Timecop.return
   end
 
   def test_it_exists
@@ -27,5 +34,7 @@ class TransactionTest < Minitest::Test
     assert_equal '4242424242424242', @t.credit_card_number
     assert_equal '0220', @t.credit_card_expiration_date
     assert_equal :success, @t.result
+    assert_equal Time.now.to_s, @t.created_at.to_s
+    assert_equal Time.now.to_s, @t.updated_at.to_s
   end
 end

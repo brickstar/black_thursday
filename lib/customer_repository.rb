@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'customer'
 require_relative 'base_repository'
 
@@ -12,22 +13,16 @@ class CustomerRepository < BaseRepository
     @models ||= csv_table_data.map { |attribute_hash| Customer.new(attribute_hash, self)}
   end
 
-  def find_all_by_first_name(name) #select
-    found = customers.map do |customer|
-      if customer.first_name.downcase.include?(name.downcase)
-        customer
-      end
+  def find_all_by_first_name(name)
+    customers.select do |customer|
+      customer.first_name.downcase.include?(name.downcase)
     end
-    found.compact
   end
 
-  def find_all_by_last_name(name) #select
-    found = customers.map do |customer|
-      if customer.last_name.downcase.include?(name.downcase)
-        customer
-      end
+  def find_all_by_last_name(name)
+    customers.select do |customer|
+      customer.last_name.downcase.include?(name.downcase)
     end
-    found.compact
   end
 
   def create(attributes)
@@ -47,15 +42,5 @@ class CustomerRepository < BaseRepository
       found.change_last_name(attributes[:last_name])
     found.change_updated_at
     end
-  end
-
-  private
-
-  def find_highest_id
-    customers.map(&:id).max
-  end
-
-  def create_new_id
-    find_highest_id + 1
   end
 end

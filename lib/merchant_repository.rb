@@ -13,12 +13,9 @@ class MerchantRepository < BaseRepository
   end
 
   def find_all_by_name(name)
-    found = merchants.map do |merchant|
-      if merchant.name.downcase.include?(name.downcase)
-        merchant
-      end
+    merchants.select do |merchant|
+      merchant.name.downcase.include?(name.downcase)
     end
-    found.compact
   end
 
   def create(attributes)
@@ -41,15 +38,5 @@ class MerchantRepository < BaseRepository
 
   def pass_item_id_to_engine_for_invoice(id)
     @parent.pass_item_id_to_invoice_repo(id)
-  end
-
-  private
-
-  def find_highest_id
-    merchants.map(&:id).max
-  end
-
-  def create_new_id
-    find_highest_id + 1
   end
 end
