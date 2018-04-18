@@ -8,10 +8,16 @@ require 'pry'
 # This is a MerchantRepositoryTest Class
 class MerchantRepositoryTest < Minitest::Test
   def setup
-    @se = SalesEngine.from_csv( { :items     => './test/fixtures/items_truncated.csv',
-                                  :merchants => './test/fixtures/merchants_truncated.csv',
-                                  :invoices => './test/fixtures/invoices_truncated.csv'
-                                } )
+    @se = SalesEngine.from_csv(
+      {
+        items:         './test/fixtures/items_truncated.csv',
+        merchants:     './test/fixtures/merchants_truncated.csv',
+        invoices:      './test/fixtures/invoices_truncated.csv',
+        invoice_items: './test/fixtures/invoice_items_truncated.csv',
+        transactions:   './test/fixtures/transactions_truncated.csv',
+        customers:     './test/fixtures/customers_truncated.csv'
+      } )
+
     @mr = @se.merchants
   end
 
@@ -42,14 +48,6 @@ class MerchantRepositoryTest < Minitest::Test
     assert_equal [], @mr.find_all_by_name('Buffalo Bill')
     assert_equal 'LovesVariety', @mr.find_all_by_name('lovesVARIety')[0].name
     assert_equal 2, @mr.find_all_by_name('cj').count
-  end
-
-  def test_find_highest_id
-    assert_equal 6, @mr.find_highest_id
-  end
-
-  def test_create_new_id
-    assert_equal 7, @mr.create_new_id
   end
 
   def test_create

@@ -18,15 +18,6 @@ class SalesAnalyst
     standard_deviation(total, average_items_per_merchant).round(2)
   end
 
-  # this method returns an array of all merchants whose
-  #   total item count - average items per all merchants
-  #   is greater than one standard deviation
-  #
-  # iterate over merchant objects, for each object subtract
-  #   average items per all merchants from total items per merchant
-  #   in the loop. return the merchant object in the array if
-  #   the difference is greater than one standard deviation
-
   def merchants_with_high_item_count
     merchants.map do |merchant|
       difference = merchant.items.length - average_items_per_merchant
@@ -82,12 +73,11 @@ class SalesAnalyst
   end
 
   def top_days_by_invoice_count
-    hash = {}
     grouped = invoices.group_by { |invoice| invoice.created_at.wday }
-    grouped.each { |key, value| hash[key] = value.size }
+    hash = grouped.each_with_object({}) { |(key, value), hash| hash[key] = value.size }
     mean = hash.values.reduce(:+) / 7
     std_dev = standard_deviation(hash.values, mean) + mean
-    day_nums = hash.select { |k,v| v > std_dev }.keys
+    day_nums = hash.select { |_, v| v > std_dev }.keys
     days = day_nums.map { |num| Date::DAYNAMES[num] }
     days
   end
@@ -95,6 +85,17 @@ class SalesAnalyst
   def invoice_status(status)
     found = invoices.select { |invoice| invoice.status == status }
     (found.length.to_f / invoices.length.to_f * 100).round(2)
+  end
+
+  def invoice_paid_in_full?(invoice_id)
+    found = @engine.transactions.find_all_by_invoice_id(invoice_id)
+    return false if found.empty?
+    found.all? { |transaction| transaction.result == :success }
+  end
+
+  def invoice_total(invoice_id)
+    found = @engine.invoice_items.find_all_by_invoice_id(invoice_id)
+    found.map { |ii| ii.unit_price * ii.quantity }.reduce(:+)
   end
 
   private
@@ -109,6 +110,18 @@ class SalesAnalyst
 
   def invoices
     @engine.invoices.all
+  end
+
+  def invoice_items
+    @engine.invoice_items.all
+  end
+
+  def transactions
+    @engine.transactions.all
+  end
+
+  def customers
+    @engine.customers.all
   end
 
   def average_item_price_standard_deviation
@@ -130,7 +143,7 @@ class SalesAnalyst
   end
 
   def total_items_per_merchant
-    @_items ||= merchants.map do |merchant|
+    @_total ||= merchants.map do |merchant|
       merchant.items.length
     end
   end
