@@ -12,17 +12,17 @@ class Item
               :merchant_id,
               :created_at,
               :updated_at,
-              :parent
+              :item_repository
 
   def initialize(data, parent)
-    @id          = data[:id].to_i
-    @name        = data[:name]
-    @description = data[:description]
-    @unit_price  = BigDecimal(data[:unit_price]) / 100.0
-    @merchant_id = data[:merchant_id].to_i
-    @created_at  = Time.parse(data[:created_at])
-    @updated_at  = Time.parse(data[:updated_at])
-    @parent      = parent
+    @id              = data[:id].to_i
+    @name            = data[:name]
+    @description     = data[:description]
+    @unit_price      = BigDecimal(data[:unit_price]) / 100.0
+    @merchant_id     = data[:merchant_id].to_i
+    @created_at      = Time.parse(data[:created_at])
+    @updated_at      = Time.parse(data[:updated_at])
+    @item_repository = parent
   end
 
   def unit_price_to_dollars
@@ -43,9 +43,5 @@ class Item
 
   def change_unit_price(unit_price)
     @unit_price = unit_price
-  end
-
-  def merchant
-    @parent.pass_merchant_id_to_sales_engine(@merchant_id)
   end
 end
